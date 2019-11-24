@@ -1,0 +1,10 @@
+{
+  "name": "ascii-art",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "chris-hughes <hughes.c.i@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "caman": "^4.1.2"
+  }
+}
