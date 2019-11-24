@@ -1,4 +1,5 @@
 var Caman = require('caman').Caman;
+var chalk = require('chalk');
 var ascii = "`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
   .split('');
 
@@ -48,7 +49,7 @@ Caman("ascii-pineapple.jpg", function () {
 
 
   asciiData.forEach(function(row){
-    console.log(row.reduce(function(a,b){return a+b}))
+    console.log(chalk.green(row.reduce(function(a,b){return a+b})))
   })
 
 });
