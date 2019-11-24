@@ -1,5 +1,8 @@
 var Caman = require('caman').Caman;
 var chalk = require('chalk');
+var prompts = require('prompts');
+
+// helpers
 var ascii = "`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
   .split('');
 
@@ -15,20 +18,27 @@ function arrayMin(array){
   });
 }
 
-var readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout
-})
+var questions = [
+  {
+    type: 'number',
+    name: 'brightCalc',
+    message: 'Choose 1. average, 2. minmax, 3. luminosity? ',
+    initial: 1
+  },
+  {
+    type: 'text',
+    name: 'invertYN',
+    message: 'Invert Y/N?',
+    initial: 'N'
+  }
+];
 
-var q1 = 'Choose 1. average, 2. minmax, 3. luminosity? ';
+(async function(){
+  var response = await prompts(questions);
+  asciiPrint(response)
+})();
 
-readline.question(q1, function(name){
-  console.log(`Hi ${name}!`)
-  asciiPrint(name)
-  readline.close()
-})
-
-function asciiPrint(type){
+function asciiPrint(options){
   Caman("ascii-pineapple.jpg", function () {
 
     this.resize({
@@ -51,11 +61,11 @@ function asciiPrint(type){
 
     brightnessData = rgbData.map(function(row){
       return row.map(function(pixel){
-        if (type==1) // average
+        if (options.brightCalc==1) // average
           return Math.round(pixel.reduce(function(a,b){return a+b})/3)
-        else if (type==2) // minmax
+        else if (options.brightCalc==2) // minmax
           return Math.round((arrayMax(pixel)+arrayMin(pixel))/2)
-        else if (type==2) // luminosity
+        else if (options.brightCalc==3) // luminosity
           return Math.round(0.21*pixel[0]+0.72*pixel[1]+0.07*pixel[2])
         else // average
           return Math.round(pixel.reduce(function(a,b){return a+b})/3)
@@ -65,15 +75,26 @@ function asciiPrint(type){
     var max = arrayMax(brightnessData);
     var min = arrayMin(brightnessData);
 
-    // [[@,a,"],[£,%,<]]
-    asciiData = brightnessData.map(function(row){
-      return row.map(function(pixel){
-        return ascii[Math.round(((pixel-min)/(max-min))*ascii.length)]
-              +ascii[Math.round(((pixel-min)/(max-min))*ascii.length)]
-              +ascii[Math.round(((pixel-min)/(max-min))*ascii.length)]
-      })
-    });
+    function mapToAscii(data){
+      return data.map(function(row){
+        return row.map(function(pixel){
+          return ascii[Math.round(((pixel-min)/(max-min))*ascii.length)]
+                +ascii[Math.round(((pixel-min)/(max-min))*ascii.length)]
+                +ascii[Math.round(((pixel-min)/(max-min))*ascii.length)]
+        })
+      });
+    }
 
+    if (options.invertYN.toUpperCase()=="Y"){
+      invertedData = brightnessData.map(function(row){
+        return row.map(function(pixel){
+          return (pixel-max-min)*-1;
+        })
+      })
+      asciiData = mapToAscii(invertedData)
+    } else {
+      asciiData = mapToAscii(brightnessData)
+    }
 
     asciiData.forEach(function(row){
       console.log(chalk.green(row.reduce(function(a,b){return a+b})))
